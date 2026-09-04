@@ -1,0 +1,173 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * La Rutlla Cafè — design system
+ * Espresso black + warm cream + aged brass. No green.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-espresso: var(--espresso);
+  --color-espresso-soft: var(--espresso-soft);
+  --color-cream: var(--cream);
+  --color-cream-deep: var(--cream-deep);
+  --color-brass: var(--brass);
+  --color-copper: var(--copper);
+  --font-display: "Playfair Display", "Cormorant Garamond", serif;
+  --font-sans: "Inter", "Jost", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.25rem;
+
+  --espresso: oklch(0.16 0.031 34);
+  --espresso-soft: oklch(0.21 0.033 38);
+  --cream: oklch(0.951 0.024 90);
+  --cream-deep: oklch(0.917 0.031 89);
+  --brass: oklch(0.723 0.093 79);
+  --copper: oklch(0.607 0.106 51);
+
+  --background: var(--cream);
+  --foreground: var(--espresso);
+  --card: oklch(0.977 0.014 90);
+  --card-foreground: var(--espresso);
+  --popover: var(--card);
+  --popover-foreground: var(--espresso);
+  --primary: var(--espresso);
+  --primary-foreground: var(--cream);
+  --secondary: var(--cream-deep);
+  --secondary-foreground: var(--espresso);
+  --muted: var(--cream-deep);
+  --muted-foreground: oklch(0.44 0.026 45);
+  --accent: var(--brass);
+  --accent-foreground: var(--espresso);
+  --destructive: oklch(0.55 0.19 27);
+  --destructive-foreground: var(--cream);
+  --border: oklch(0.86 0.026 82);
+  --input: oklch(0.86 0.026 82);
+  --ring: var(--brass);
+}
+
+.on-dark {
+  --background: var(--espresso);
+  --foreground: var(--cream);
+  --card: var(--espresso-soft);
+  --card-foreground: var(--cream);
+  --primary: var(--cream);
+  --primary-foreground: var(--espresso);
+  --secondary: var(--espresso-soft);
+  --secondary-foreground: var(--cream);
+  --muted: var(--espresso-soft);
+  --muted-foreground: oklch(0.79 0.021 85);
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 18%);
+  color: var(--cream);
+  background-color: var(--espresso);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+  }
+
+  ::selection {
+    background: var(--brass);
+    color: var(--espresso);
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+@utility hairline {
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklab, var(--brass) 70%, transparent),
+    transparent
+  );
+  height: 1px;
+  width: 100%;
+}
+
+@utility grain {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: radial-gradient(var(--cream) 0.5px, transparent 0.5px);
+    background-size: 3px 3px;
+  }
+}
+
+@utility link-underline {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    height: 1px;
+    width: 0;
+    background: var(--brass);
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  &:hover::after {
+    width: 100%;
+  }
+}
