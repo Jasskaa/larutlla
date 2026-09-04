@@ -1,23 +1,26 @@
 import { motion } from "framer-motion";
 import { Sun, Wifi, Baby, Bike, Tv, Music, Wheat } from "lucide-react";
-import { amenities } from "./data";
+import { amenityIcons } from "./data";
 import { Reveal, SectionHeading } from "./primitives";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const icons = { sun: Sun, wifi: Wifi, baby: Baby, bike: Bike, tv: Tv, music: Music, wheat: Wheat };
 
 export function Amenities() {
+  const { t } = useLanguage();
+
   return (
     <section className="on-dark grain relative bg-espresso py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5 lg:px-10">
         <SectionHeading
-          eyebrow="En la casa"
-          title="Lo que encontrarás"
-          intro="Detalles pequeños que hacen que la gente vuelva cada día."
+          eyebrow={t.amenities.eyebrow}
+          title={t.amenities.title}
+          intro={t.amenities.intro}
         />
 
         <ul className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-cream/10 bg-cream/10 md:grid-cols-4">
-          {amenities.map((a, i) => {
-            const Icon = icons[a.icon as keyof typeof icons];
+          {t.amenities.items.map((a, i) => {
+            const Icon = icons[amenityIcons[i] as keyof typeof icons];
             return (
               <motion.li
                 key={a.title}
@@ -40,10 +43,8 @@ export function Amenities() {
             );
           })}
           <Reveal className="bg-espresso p-6 md:p-8">
-            <p className="font-display text-xl italic text-brass">Comer allí o para llevar</p>
-            <p className="mt-2 text-sm leading-relaxed text-cream/60">
-              Como te vaya mejor, cada día del año.
-            </p>
+            <p className="font-display text-xl italic text-brass">{t.amenities.takeaway.title}</p>
+            <p className="mt-2 text-sm leading-relaxed text-cream/60">{t.amenities.takeaway.desc}</p>
           </Reveal>
         </ul>
       </div>

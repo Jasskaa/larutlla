@@ -4,8 +4,11 @@ import { X } from "lucide-react";
 import { gallery } from "./data";
 import { SectionHeading } from "./primitives";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 export function Gallery() {
+  const { t } = useLanguage();
+  const items = t.gallery.items.map((meta, i) => ({ ...meta, ...gallery[i]! }));
   const [open, setOpen] = useState<number | null>(null);
 
   useEffect(() => {
@@ -17,20 +20,16 @@ export function Gallery() {
   return (
     <section id="galeria" className="on-dark grain bg-espresso py-20 md:py-36">
       <div className="mx-auto max-w-7xl px-5 lg:px-10">
-        <SectionHeading
-          eyebrow="Galería"
-          title="Así se ve un día cualquiera"
-          intro="Café, cocina, plaza y sobremesa. Sin filtros de más."
-        />
+        <SectionHeading eyebrow={t.gallery.eyebrow} title={t.gallery.title} intro={t.gallery.intro} />
 
         {/* Mobile: carrusel horizontal */}
         <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-4 md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {gallery.map((g, i) => (
+          {items.map((g, i) => (
             <button
               type="button"
               key={"m" + g.tag + i}
               onClick={() => setOpen(i)}
-              aria-label={`Ampliar foto: ${g.alt}`}
+              aria-label={t.gallery.enlarge(g.alt)}
               className="group relative h-52 w-[72vw] shrink-0 snap-center overflow-hidden rounded-sm bg-espresso-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-brass"
             >
               <img src={g.src} alt={g.alt} loading="lazy" className="h-full w-full object-cover" />
@@ -42,17 +41,17 @@ export function Gallery() {
           ))}
         </div>
         <p className="text-center text-[0.6rem] uppercase tracking-[0.22em] text-cream/45 md:hidden">
-          Desliza para ver más
+          {t.gallery.swipeHint}
         </p>
 
         {/* Desktop: grid */}
         <div className="mt-16 hidden auto-rows-[190px] grid-cols-2 gap-3 md:grid md:auto-rows-[230px] md:grid-cols-4 md:gap-4">
-          {gallery.map((g, i) => (
+          {items.map((g, i) => (
             <motion.button
               type="button"
               key={g.tag + i}
               onClick={() => setOpen(i)}
-              aria-label={`Ampliar foto: ${g.alt}`}
+              aria-label={t.gallery.enlarge(g.alt)}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
@@ -83,7 +82,7 @@ export function Gallery() {
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label={gallery[open]!.alt}
+            aria-label={items[open]!.alt}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -92,7 +91,7 @@ export function Gallery() {
           >
             <button
               type="button"
-              aria-label="Cerrar imagen"
+              aria-label={t.gallery.closeImage}
               className="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-full border border-cream/25 text-cream"
               onClick={() => setOpen(null)}
             >
@@ -107,12 +106,12 @@ export function Gallery() {
               onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={gallery[open]!.src}
-                alt={gallery[open]!.alt}
+                src={items[open]!.src}
+                alt={items[open]!.alt}
                 className="max-h-[75vh] w-full rounded-sm object-contain"
               />
               <figcaption className="mt-4 text-center text-[0.65rem] uppercase tracking-[0.24em] text-brass">
-                {gallery[open]!.tag}
+                {items[open]!.tag}
               </figcaption>
             </motion.figure>
           </motion.div>

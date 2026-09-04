@@ -1,8 +1,9 @@
 import { AnimatePresence, motion, animate, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Quote, Star } from "lucide-react";
-import { business, testimonials } from "./data";
+import { business } from "./data";
 import { Reveal, SectionHeading } from "./primitives";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 function Counter({ value, decimals = 0 }: { value: number; decimals?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -21,6 +22,8 @@ function Counter({ value, decimals = 0 }: { value: number; decimals?: number }) 
 }
 
 export function Reviews() {
+  const { t } = useLanguage();
+  const testimonials = t.reviews.testimonials;
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -28,7 +31,7 @@ export function Reviews() {
     if (paused) return;
     const id = setInterval(() => setIndex((i) => (i + 1) % testimonials.length), 6000);
     return () => clearInterval(id);
-  }, [paused]);
+  }, [paused, testimonials.length]);
 
   const go = (dir: number) =>
     setIndex((i) => (i + dir + testimonials.length) % testimonials.length);
@@ -36,7 +39,7 @@ export function Reviews() {
   return (
     <section id="resenas" className="bg-background py-24 md:py-36">
       <div className="mx-auto max-w-7xl px-5 lg:px-10">
-        <SectionHeading eyebrow="Reseñas" title="Lo que dice la gente del pueblo" />
+        <SectionHeading eyebrow={t.reviews.eyebrow} title={t.reviews.title} />
 
         <Reveal delay={0.1}>
           <div className="mt-14 flex flex-col items-center gap-3">
@@ -57,7 +60,7 @@ export function Reviews() {
               ))}
             </span>
             <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-              <Counter value={business.reviews} /> reseñas en Google
+              <Counter value={business.reviews} /> {t.reviews.reviewsLabel}
             </p>
           </div>
         </Reveal>
@@ -67,7 +70,7 @@ export function Reviews() {
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           aria-roledescription="carrusel"
-          aria-label="Testimonios de clientes"
+          aria-label={t.reviews.title}
         >
           <Quote className="mx-auto h-8 w-8 text-brass" aria-hidden="true" />
           <div className="relative mt-6 min-h-[230px] sm:min-h-[200px]">
@@ -84,7 +87,7 @@ export function Reviews() {
                   “{testimonials[index]!.quote}”
                 </p>
                 <footer className="mt-7 text-[0.65rem] uppercase tracking-[0.26em] text-muted-foreground">
-                  {testimonials[index]!.author} · {testimonials[index]!.meta}
+                  {testimonials[index]!.author} · {t.reviews.meta}
                 </footer>
               </motion.blockquote>
             </AnimatePresence>
@@ -94,18 +97,18 @@ export function Reviews() {
             <button
               type="button"
               onClick={() => go(-1)}
-              aria-label="Testimonio anterior"
+              aria-label={t.reviews.prev}
               className="grid h-11 w-11 place-items-center rounded-full border border-border transition-colors duration-300 hover:border-brass hover:text-copper"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
             <div className="flex gap-2">
-              {testimonials.map((t, i) => (
+              {testimonials.map((tItem, i) => (
                 <button
-                  key={t.author}
+                  key={tItem.author}
                   type="button"
                   onClick={() => setIndex(i)}
-                  aria-label={`Ir al testimonio ${i + 1}`}
+                  aria-label={t.reviews.goTo(i + 1)}
                   aria-current={i === index}
                   className={`h-1.5 rounded-full transition-all duration-500 ${
                     i === index ? "w-8 bg-copper" : "w-1.5 bg-border hover:bg-brass"
@@ -116,7 +119,7 @@ export function Reviews() {
             <button
               type="button"
               onClick={() => go(1)}
-              aria-label="Siguiente testimonio"
+              aria-label={t.reviews.next}
               className="grid h-11 w-11 place-items-center rounded-full border border-border transition-colors duration-300 hover:border-brass hover:text-copper"
             >
               <ArrowRight className="h-4 w-4" />

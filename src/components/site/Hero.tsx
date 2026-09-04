@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Star } from "lucide-react";
 import { business, images } from "./data";
 import { Seal } from "./primitives";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 function AnimatedNumber({ value, decimals = 0 }: { value: number; decimals?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -23,6 +24,7 @@ function AnimatedNumber({ value, decimals = 0 }: { value: number; decimals?: num
 }
 
 export function Hero() {
+  const { t } = useLanguage();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
@@ -58,7 +60,7 @@ export function Hero() {
               transition={{ delay: 0.2, duration: 0.8 }}
               className="eyebrow"
             >
-              Plaça de la Rutlla · Anglès · Girona
+              {t.hero.eyebrow}
             </motion.p>
 
             <h1 className="mt-6 text-[clamp(3rem,11vw,8.5rem)] leading-[0.86] tracking-[-0.02em]">
@@ -81,8 +83,7 @@ export function Hero() {
               transition={{ delay: 0.7, duration: 0.9 }}
               className="mt-8 max-w-md text-base leading-relaxed text-cream/75"
             >
-              Un siglo de conversaciones, cafés bien tirados y música en la plaza. Terraza al sol,
-              piano centenario dentro, y la puerta abierta cada día del año.
+              {t.hero.description}
             </motion.p>
 
             <motion.div
@@ -95,7 +96,7 @@ export function Hero() {
                 href="#carta"
                 className="group inline-flex items-center justify-center gap-3 rounded-full bg-cream px-8 py-4 text-[0.72rem] uppercase tracking-[0.24em] text-espresso transition-transform duration-300 hover:-translate-y-0.5 hover:bg-brass"
               >
-                Ver la carta
+                {t.hero.ctaMenu}
                 <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </a>
               <a
@@ -104,7 +105,7 @@ export function Hero() {
                 rel="noreferrer"
                 className="inline-flex items-center justify-center rounded-full border border-cream/30 px-8 py-4 text-[0.72rem] uppercase tracking-[0.24em] text-cream transition-colors duration-300 hover:border-brass hover:text-brass"
               >
-                Cómo llegar
+                {t.hero.ctaDirections}
               </a>
             </motion.div>
 
@@ -128,11 +129,11 @@ export function Hero() {
                   ))}
                 </span>
                 <span className="sr-only">
-                  Valoración {business.rating} sobre 5 en Google con {business.reviews} reseñas
+                  {t.hero.ratingSr(business.rating.toFixed(1).replace(".", ","), String(business.reviews))}
                 </span>
               </p>
               <span className="text-xs uppercase tracking-[0.2em] text-cream/60">
-                <AnimatedNumber value={business.reviews} /> reseñas en Google
+                <AnimatedNumber value={business.reviews} /> {t.hero.reviewsLabel}
               </span>
             </motion.div>
           </div>
@@ -149,13 +150,13 @@ export function Hero() {
 
         <motion.a
           href="#nosotros"
-          aria-label="Bajar a la siguiente sección"
+          aria-label={t.hero.scrollDown}
           className="mt-14 flex w-fit items-center gap-3 text-[0.65rem] uppercase tracking-[0.3em] text-cream/50"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
         >
           <span className="block h-10 w-px bg-gradient-to-b from-brass to-transparent" />
-          Scroll
+          {t.hero.scroll}
         </motion.a>
       </motion.div>
     </section>

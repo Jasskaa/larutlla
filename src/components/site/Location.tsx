@@ -1,31 +1,32 @@
 import { Clock, MapPin, Phone, Mail } from "lucide-react";
 import { business } from "./data";
 import { Reveal, SectionHeading } from "./primitives";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 export function Location() {
+  const { t } = useLanguage();
+
+  const rows = [
+    { icon: MapPin, label: t.location.address, value: business.address },
+    { icon: Clock, label: t.location.hours, value: t.location.hoursValue },
+    { icon: Phone, label: t.location.phone, value: business.phone, href: business.phoneHref },
+    {
+      icon: Mail,
+      label: t.location.email,
+      value: business.email,
+      href: `mailto:${business.email}`,
+    },
+  ];
+
   return (
     <section id="ubicacion" className="bg-background py-20 md:py-36">
       <div className="mx-auto max-w-7xl px-5 lg:px-10">
-        <SectionHeading
-          eyebrow="Ubicación y horario"
-          title="Nos encuentras en la plaza"
-          intro="Abierto los siete días de la semana, de la primera taza a la última copa."
-        />
+        <SectionHeading eyebrow={t.location.eyebrow} title={t.location.title} intro={t.location.intro} />
 
         <div className="mt-10 grid gap-8 md:mt-16 lg:grid-cols-[minmax(0,1fr)_1.15fr] lg:gap-14">
           <Reveal>
             <ul className="space-y-4 md:space-y-8">
-              {[
-                { icon: MapPin, label: "Dirección", value: business.address },
-                { icon: Clock, label: "Horario", value: business.hours },
-                { icon: Phone, label: "Teléfono", value: business.phone, href: business.phoneHref },
-                {
-                  icon: Mail,
-                  label: "Email",
-                  value: business.email,
-                  href: `mailto:${business.email}`,
-                },
-              ].map((row) => (
+              {rows.map((row) => (
                 <li
                   key={row.label}
                   className="group flex min-w-0 gap-3.5 border-b border-border pb-4 md:gap-5 md:pb-6"
@@ -55,7 +56,7 @@ export function Location() {
             </ul>
 
             <p className="mt-4 text-[0.7rem] leading-relaxed text-muted-foreground md:mt-6 md:text-xs">
-              El horario puede variar; consúltanos por teléfono antes de venir.
+              {t.location.note}
             </p>
 
             <a
@@ -64,7 +65,7 @@ export function Location() {
               rel="noreferrer"
               className="group mt-6 inline-flex items-center gap-3 rounded-full bg-espresso px-6 py-3.5 text-[0.66rem] uppercase tracking-[0.24em] text-cream transition-all duration-300 hover:-translate-y-0.5 hover:bg-copper md:mt-8 md:px-8 md:py-4 md:text-[0.72rem]"
             >
-              Cómo llegar
+              {t.location.cta}
               <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </a>
           </Reveal>
@@ -72,7 +73,7 @@ export function Location() {
           <Reveal delay={0.15}>
             <div className="h-[240px] overflow-hidden rounded-sm border border-border md:h-full md:min-h-[520px]">
               <iframe
-                title="Mapa de La Rutlla Cafè en Plaça de la Rutlla 11, Anglès"
+                title={t.location.mapTitle}
                 src={business.mapEmbed}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"

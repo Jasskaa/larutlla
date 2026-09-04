@@ -1,11 +1,23 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ChevronDown, Star, X } from "lucide-react";
-import { menu } from "./data";
+import { menuFeaturedFlags } from "./data";
 import { Reveal, SectionHeading } from "./primitives";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/i18n/LanguageContext";
+import type { Translations } from "@/i18n/translations";
 
-function MenuItems({ items }: { items: { name: string; desc: string; star?: boolean }[] }) {
+type MenuCategory = Translations["menu"]["categories"][number];
+
+function MenuItems({
+  items,
+  flags,
+  featuredLabel,
+}: {
+  items: MenuCategory["items"];
+  flags: boolean[];
+  featuredLabel: string;
+}) {
   return (
     <ul className="grid gap-px overflow-hidden rounded-sm border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item, i) => (
@@ -18,10 +30,10 @@ function MenuItems({ items }: { items: { name: string; desc: string; star?: bool
         >
           <div className="flex items-start justify-between gap-4">
             <h3 className="font-display text-xl leading-tight sm:text-2xl">{item.name}</h3>
-            {item.star && (
+            {flags[i] && (
               <span className="mt-1 inline-flex shrink-0 items-center gap-1 rounded-full border border-brass/60 px-2.5 py-1 text-[0.55rem] uppercase tracking-[0.18em] text-copper">
                 <Star className="h-2.5 w-2.5 fill-current" aria-hidden="true" />
-                Destacado
+                {featuredLabel}
               </span>
             )}
           </div>
@@ -34,7 +46,9 @@ function MenuItems({ items }: { items: { name: string; desc: string; star?: bool
 }
 
 function MobileMenuSheet({ onClose }: { onClose: () => void }) {
-  const [open, setOpen] = useState<string>(menu[0]!.id);
+  const { t } = useLanguage();
+  const categories = t.menu.categories;
+  const [open, setOpen] = useState<string>(categories[0]!.id);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -50,7 +64,7 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
     <motion.div
       role="dialog"
       aria-modal="true"
-      aria-label="La carta de La Rutlla Cafè"
+      aria-label={t.menu.sheetAriaLabel}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -67,13 +81,13 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
       >
         <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4">
           <div className="min-w-0">
-            <p className="eyebrow">La carta</p>
+            <p className="eyebrow">{t.menu.eyebrow}</p>
             <p className="truncate font-display text-2xl">La Rutlla Cafè</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Cerrar la carta"
+            aria-label={t.menu.closeSheet}
             className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border"
           >
             <X className="h-4 w-4" />
@@ -81,7 +95,7 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-10 pt-2">
-          {menu.map((cat) => {
+          {categories.map((cat, ci) => {
             const isOpen = open === cat.id;
             return (
               <div key={cat.id} className="border-b border-border">
@@ -110,7 +124,11 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
                     >
                       <p className="pb-4 font-display text-base italic text-copper">{cat.note}</p>
                       <div className="pb-5">
-                        <MenuItems items={cat.items} />
+                        <MenuItems
+                          items={cat.items}
+                          flags={menuFeaturedFlags[ci] ?? []}
+                          featuredLabel={t.menu.featured}
+                        />
                       </div>
                     </motion.div>
                   )}
@@ -119,7 +137,7 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
             );
           })}
           <p className="mt-6 text-center text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-            Menú apto sin gluten · Leche sin lactosa disponible
+            {t.menu.footNote}
           </p>
         </div>
       </motion.div>
@@ -128,18 +146,17 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
 }
 
 export function MenuSection() {
-  const [active, setActive] = useState(menu[0]!.id);
+  const { t } = useLanguage();
+  const categories = t.menu.categories;
+  const [active, setActive] = useState<string>(categories[0]!.id);
   const [sheet, setSheet] = useState(false);
-  const current = menu.find((m) => m.id === active) ?? menu[0]!;
+  const currentIndex = categories.findIndex((m) => m.id === active);
+  const current = categories[currentIndex] ?? categories[0]!;
 
   return (
     <section id="carta" className="relative bg-background py-20 md:py-36">
       <div className="mx-auto max-w-7xl px-5 lg:px-10">
-        <SectionHeading
-          eyebrow="La carta"
-          title="De la primera taza a la última copa"
-          intro="Cocina sencilla y honesta, servida sin prisa. Consulta precios en la casa o por teléfono."
-        />
+        <SectionHeading eyebrow={t.menu.eyebrow} title={t.menu.title} intro={t.menu.intro} />
 
         {/* Mobile: CTA + bottom sheet */}
         <div className="mt-10 lg:hidden">
@@ -149,13 +166,13 @@ export function MenuSection() {
             whileTap={{ scale: 0.97 }}
             className="group flex w-full items-center justify-between gap-4 rounded-full bg-espresso px-7 py-5 text-cream"
           >
-            <span className="text-[0.72rem] uppercase tracking-[0.26em]">Ver la carta</span>
+            <span className="text-[0.72rem] uppercase tracking-[0.26em]">{t.menu.ctaMobile}</span>
             <span className="text-brass transition-transform duration-300 group-active:translate-x-1">
               →
             </span>
           </motion.button>
           <p className="mt-4 text-center text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-            {menu.length} categorías · sin gluten · sin lactosa
+            {t.menu.categoriesNote(categories.length)}
           </p>
         </div>
 
@@ -166,10 +183,10 @@ export function MenuSection() {
           <Reveal delay={0.1}>
             <div
               role="tablist"
-              aria-label="Categorías de la carta"
+              aria-label={t.menu.tabsAriaLabel}
               className="mt-14 flex flex-wrap justify-center gap-2"
             >
-              {menu.map((cat) => (
+              {categories.map((cat) => (
                 <button
                   key={cat.id}
                   role="tab"
@@ -209,14 +226,18 @@ export function MenuSection() {
             >
               <p className="text-center font-display text-xl italic text-copper">{current.note}</p>
               <div className="mt-10">
-                <MenuItems items={current.items} />
+                <MenuItems
+                  items={current.items}
+                  flags={menuFeaturedFlags[currentIndex] ?? []}
+                  featuredLabel={t.menu.featured}
+                />
               </div>
             </motion.div>
           </AnimatePresence>
 
           <Reveal delay={0.15}>
             <p className="mt-10 text-center text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Menú apto sin gluten · Leche sin lactosa disponible
+              {t.menu.footNote}
             </p>
           </Reveal>
         </div>
