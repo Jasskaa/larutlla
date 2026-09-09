@@ -250,9 +250,7 @@ export function Seal({ className, spin = true }: { className?: string; spin?: bo
 export function Wordmark({ compact = false }: { compact?: boolean }) {
   return (
     <span className="flex items-center gap-3">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-current/30">
-        <span className="font-display text-lg italic leading-none">R</span>
-      </span>
+      <Seal spin={false} className="w-9 shrink-0" />
       <span className="min-w-0 leading-none">
         <span className="block font-display text-xl tracking-tight sm:text-2xl">La Rutlla Cafè</span>
         {!compact && (
