@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "framer-
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { business } from "./data";
-import { Magnetic, Wordmark } from "./primitives";
+import { Magnetic, Seal, Wordmark } from "./primitives";
 import { useLanguage } from "@/i18n/LanguageContext";
 import type { Locale } from "@/i18n/content";
 import { cn } from "@/lib/utils";
@@ -59,12 +59,36 @@ export function Header() {
       )}
       style={{ backgroundColor: scrolled ? undefined : "transparent" }}
     >
-      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 lg:px-10">
+      {/* Mobile / tablet: logo left · name centered · menu right — nothing else */}
+      <div className="mx-auto grid grid-cols-3 items-center px-5 lg:hidden">
+        <a href="#inicio" aria-label={t.common.home} className="justify-self-start">
+          <Seal spin={false} className="w-9" />
+        </a>
+        <a
+          href="#inicio"
+          aria-label={t.common.home}
+          className="justify-self-center font-display text-lg tracking-tight text-cream"
+        >
+          La Rutlla Cafè
+        </a>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-label={open ? t.common.closeMenu : t.common.openMenu}
+          aria-expanded={open}
+          className="grid h-10 w-10 shrink-0 place-items-center justify-self-end rounded-full border border-cream/25 text-cream"
+        >
+          {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {/* Desktop */}
+      <div className="mx-auto hidden max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-10 lg:grid">
         <a href="#inicio" className="min-w-0" aria-label={t.common.home}>
           <Wordmark compact={scrolled} />
         </a>
 
-        <nav className="hidden items-center gap-9 lg:flex" aria-label="Nav">
+        <nav className="flex items-center gap-9" aria-label="Nav">
           {navPrimary.map((n) => (
             <a
               key={n.href}
@@ -89,19 +113,6 @@ export function Header() {
             </a>
           </Magnetic>
         </nav>
-
-        <div className="flex items-center gap-2 lg:hidden">
-          <LangSwitch />
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-label={open ? t.common.closeMenu : t.common.openMenu}
-            aria-expanded={open}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-cream/25 text-cream"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
       </div>
 
       <AnimatePresence>
@@ -115,6 +126,9 @@ export function Header() {
             className="overflow-hidden bg-espresso/95 backdrop-blur-xl lg:hidden"
             aria-label="Nav"
           >
+            <div className="mx-auto flex max-w-7xl justify-end px-5 pt-4">
+              <LangSwitch />
+            </div>
             <ul className="mx-auto max-w-7xl px-5 py-4">
               {t.nav.map((n, i) => (
                 <motion.li
