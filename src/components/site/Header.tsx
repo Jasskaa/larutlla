@@ -1,37 +1,36 @@
 import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { nav, business } from "./data";
-import { Wordmark } from "./primitives";
-import { cn } from "@/lib/utils";
+import { business } from "./data";
+import { Magnetic, Wordmark } from "./primitives";
 import { useLanguage } from "@/i18n/LanguageContext";
-import type { Locale } from "@/i18n/translations";
+import type { Locale } from "@/i18n/content";
+import { cn } from "@/lib/utils";
 
-function LanguageToggle({ className }: { className?: string }) {
+function LangSwitch({ className }: { className?: string }) {
   const { locale, setLocale, t } = useLanguage();
   const options: Locale[] = ["ca", "es"];
-
   return (
     <div
       role="group"
-      aria-label={t.header.langLabel}
+      aria-label={t.common.language}
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-full border border-cream/25 p-0.5",
+        "relative inline-flex items-center rounded-full border border-cream/20 p-0.5 text-[0.62rem] uppercase tracking-[0.2em]",
         className,
       )}
     >
-      {options.map((opt) => (
+      {options.map((l) => (
         <button
-          key={opt}
+          key={l}
           type="button"
-          onClick={() => setLocale(opt)}
-          aria-pressed={locale === opt}
+          onClick={() => setLocale(l)}
+          aria-pressed={locale === l}
           className={cn(
-            "rounded-full px-2.5 py-1 text-[0.62rem] uppercase tracking-[0.18em] transition-colors duration-300",
-            locale === opt ? "bg-brass text-espresso" : "text-cream/70 hover:text-cream",
+            "relative rounded-full px-3 py-1.5 transition-colors duration-300",
+            locale === l ? "bg-brass text-espresso" : "text-cream/60 hover:text-cream",
           )}
         >
-          {opt}
+          <span className="relative">{l}</span>
         </button>
       ))}
     </div>
@@ -43,10 +42,9 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const { scrollY } = useScroll();
   const { t } = useLanguage();
+  const navPrimary = t.nav.filter((n) => "primary" in n && n.primary);
 
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 40));
-
-  const navPrimary = nav.filter((n) => n.primary);
 
   return (
     <motion.header
@@ -62,40 +60,48 @@ export function Header() {
       style={{ backgroundColor: scrolled ? undefined : "transparent" }}
     >
       <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 lg:px-10">
-        <a href="#inicio" className="min-w-0" aria-label={t.header.goHome}>
+        <a href="#inicio" className="min-w-0" aria-label={t.common.home}>
           <Wordmark compact={scrolled} />
         </a>
 
-        <nav className="hidden items-center gap-10 lg:flex" aria-label={t.header.mainNav}>
+        <nav className="hidden items-center gap-9 lg:flex" aria-label="Nav">
           {navPrimary.map((n) => (
             <a
               key={n.href}
               href={n.href}
               className="link-underline text-[0.68rem] uppercase tracking-[0.28em] text-cream/70 transition-colors hover:text-cream"
             >
-              {t.nav[n.key]}
+              {n.label}
             </a>
           ))}
-          <a
-            href={business.mapsUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="ml-4 rounded-full border border-brass/60 px-6 py-2.5 text-[0.66rem] uppercase tracking-[0.26em] text-brass transition-all duration-300 hover:bg-brass hover:text-espresso"
-          >
-            {t.header.cta}
-          </a>
-          <LanguageToggle />
+          <LangSwitch className="ml-2" />
+          <Magnetic>
+            <a
+              href={business.mapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-brass/60 px-6 py-2.5 text-[0.66rem] uppercase tracking-[0.26em] text-brass transition-all duration-300 hover:bg-brass hover:text-espresso"
+            >
+              {t.common.directions}
+              <span aria-hidden="true" className="grid h-5 w-5 place-items-center rounded-full border border-current text-[0.6rem]">
+                →
+              </span>
+            </a>
+          </Magnetic>
         </nav>
 
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-label={open ? t.header.closeMenu : t.header.openMenu}
-          aria-expanded={open}
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-cream/25 text-cream lg:hidden"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <LangSwitch />
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-label={open ? t.common.closeMenu : t.common.openMenu}
+            aria-expanded={open}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-cream/25 text-cream"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -107,10 +113,10 @@ export function Header() {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden bg-espresso/95 backdrop-blur-xl lg:hidden"
-            aria-label={t.header.mobileNav}
+            aria-label="Nav"
           >
             <ul className="mx-auto max-w-7xl px-5 py-4">
-              {nav.map((n, i) => (
+              {t.nav.map((n, i) => (
                 <motion.li
                   key={n.href}
                   initial={{ opacity: 0, x: -12 }}
@@ -123,20 +129,19 @@ export function Header() {
                     onClick={() => setOpen(false)}
                     className="block py-3.5 font-display text-2xl text-cream"
                   >
-                    {t.nav[n.key]}
+                    {n.label}
                   </a>
                 </motion.li>
               ))}
-              <li className="flex items-center justify-between gap-4 pt-4">
+              <li className="pt-4">
                 <a
                   href={business.mapsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 rounded-full bg-brass px-5 py-3 text-center text-[0.72rem] uppercase tracking-[0.22em] text-espresso"
+                  className="block rounded-full bg-brass px-5 py-3 text-center text-[0.72rem] uppercase tracking-[0.22em] text-espresso"
                 >
-                  {t.header.cta}
+                  {t.common.directions}
                 </a>
-                <LanguageToggle />
               </li>
             </ul>
           </motion.nav>

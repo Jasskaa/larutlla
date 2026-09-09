@@ -1,4 +1,4 @@
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +28,154 @@ export function Reveal({
   );
 }
 
+/** Staggered children reveal: wrap items in <StaggerItem>. */
+export function Stagger({
+  children,
+  className,
+  delay = 0,
+  gap = 0.08,
+  as: Tag = "div",
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+  gap?: number;
+  as?: "div" | "ul" | "dl";
+}) {
+  const MotionTag = motion[Tag];
+  return (
+    <MotionTag
+      className={className}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-70px" }}
+      variants={{ hidden: {}, show: { transition: { staggerChildren: gap, delayChildren: delay } } }}
+    >
+      {children}
+    </MotionTag>
+  );
+}
+
+export const staggerItem = {
+  hidden: { opacity: 0, y: 26 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } },
+};
+
+export function StaggerItem({
+  children,
+  className,
+  as = "div",
+}: {
+  children: ReactNode;
+  className?: string;
+  as?: "div" | "li";
+}) {
+  const MotionTag = as === "li" ? motion.li : motion.div;
+  return (
+    <MotionTag className={className} variants={staggerItem}>
+      {children}
+    </MotionTag>
+  );
+}
+
+/** Subtle magnetic hover for buttons and links. */
+export function Magnetic({
+  children,
+  className,
+  strength = 14,
+}: {
+  children: ReactNode;
+  className?: string;
+  strength?: number;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const x = useSpring(mx, { stiffness: 220, damping: 18 });
+  const y = useSpring(my, { stiffness: 220, damping: 18 });
+
+  return (
+    <motion.span
+      ref={ref}
+      style={{ x, y, display: "inline-block" }}
+      className={className}
+      onPointerMove={(e) => {
+        // Only apply the magnetic offset for mouse-like pointers. On touch
+        // screens pointerleave doesn't fire reliably after a tap, which can
+        // leave the button visually offset with its spring "stuck".
+        if (typeof window !== "undefined" && !window.matchMedia("(pointer: fine)").matches) return;
+        const el = ref.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        mx.set(((e.clientX - r.left) / r.width - 0.5) * strength * 2);
+        my.set(((e.clientY - r.top) / r.height - 0.5) * strength);
+      }}
+      onPointerLeave={() => {
+        mx.set(0);
+        my.set(0);
+      }}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+/** Decorative dotted ring, echoing the "Since 1999" seal language. */
+export function DottedRing({
+  className,
+  duration = 60,
+  reverse = false,
+}: {
+  className?: string;
+  duration?: number;
+  reverse?: boolean;
+}) {
+  return (
+    <motion.svg
+      viewBox="0 0 200 200"
+      aria-hidden="true"
+      className={cn("pointer-events-none absolute", className)}
+      animate={{ rotate: reverse ? -360 : 360 }}
+      transition={{ duration, repeat: Infinity, ease: "linear" }}
+    >
+      <circle
+        cx="100"
+        cy="100"
+        r="96"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeDasharray="1 9"
+        strokeLinecap="round"
+      />
+      <circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+    </motion.svg>
+  );
+}
+
+/** Small floating decorative dot/bean with an infinite drift. */
+export function FloatDecor({
+  className,
+  size = 10,
+  delay = 0,
+  distance = 14,
+}: {
+  className?: string;
+  size?: number;
+  delay?: number;
+  distance?: number;
+}) {
+  return (
+    <motion.span
+      aria-hidden="true"
+      className={cn("pointer-events-none absolute rounded-full border border-current opacity-40", className)}
+      style={{ width: size, height: size }}
+      animate={{ y: [0, -distance, 0], opacity: [0.25, 0.55, 0.25] }}
+      transition={{ duration: 6 + delay, repeat: Infinity, ease: "easeInOut", delay }}
+    />
+  );
+}
+
 export function SectionHeading({
   eyebrow,
   title,
@@ -42,7 +190,9 @@ export function SectionHeading({
   return (
     <Reveal className={cn("max-w-2xl", align === "center" && "mx-auto text-center")}>
       <p className="eyebrow">{eyebrow}</p>
-      <h2 className="mt-4 text-4xl leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">{title}</h2>
+      <h2 className="mt-4 text-4xl leading-[1.02] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+        {title}
+      </h2>
       <div className={cn("hairline mt-6", align === "center" ? "mx-auto max-w-[120px]" : "max-w-[120px]")} />
       {intro ? <p className="mt-6 text-base leading-relaxed text-muted-foreground">{intro}</p> : null}
     </Reveal>

@@ -1,5 +1,4 @@
 import heroLatte from "@/assets/hero-latte.jpg";
-import interiorPiano from "@/assets/interior-piano.jpg";
 import galTerrace from "@/assets/gal-terrace.jpg";
 import galPizza from "@/assets/gal-pizza.jpg";
 import galBaguette from "@/assets/gal-baguette.jpg";
@@ -10,7 +9,6 @@ import galCappuccino from "@/assets/gal-cappuccino.jpg";
 
 export const images = {
   heroLatte,
-  interiorPiano,
   galTerrace,
   galPizza,
   galBaguette,
@@ -26,43 +24,26 @@ export const business = {
   phone: "972 42 09 55",
   phoneHref: "tel:+34972420955",
   email: "info@larutlla.cat",
-  web: "larutlla.cat",
   instagram: "https://www.instagram.com/cafeterialarutlla/",
   rating: 4.1,
   reviews: 755,
+  /** Weekly schedule. index 0 = Monday … 6 = Sunday. Tuesday closed. */
+  week: [
+    { open: "07:00", close: "23:00" },
+    null,
+    { open: "07:00", close: "23:00" },
+    { open: "07:00", close: "23:00" },
+    { open: "07:00", close: "23:00" },
+    { open: "07:00", close: "23:00" },
+    { open: "07:00", close: "23:00" },
+  ] as ({ open: string; close: string } | null)[],
   mapsUrl:
     "https://www.google.com/maps/dir/?api=1&destination=Pla%C3%A7a%20de%20la%20Rutlla%2011%2C%2017160%20Angl%C3%A8s%2C%20Girona",
   mapEmbed:
     "https://www.google.com/maps?q=Pla%C3%A7a%20de%20la%20Rutlla%2011%2C%2017160%20Angl%C3%A8s%2C%20Girona&output=embed",
 };
 
-// Navigation hrefs, keyed to translation keys in src/i18n/translations.ts (nav.*)
-export type NavKey = "inicio" | "carta" | "nosotros" | "galeria" | "resenas" | "ubicacion" | "contacto";
-
-export const nav: { key: NavKey; href: string; primary?: boolean }[] = [
-  { key: "inicio", href: "#inicio" },
-  { key: "carta", href: "#carta", primary: true },
-  { key: "nosotros", href: "#nosotros", primary: true },
-  { key: "galeria", href: "#galeria", primary: true },
-  { key: "resenas", href: "#resenas" },
-  { key: "ubicacion", href: "#ubicacion", primary: true },
-  { key: "contacto", href: "#contacto" },
-];
-
-// Icon keys, in display order — matched by index to translations.amenities.items
-export const amenityIcons = ["sun", "wifi", "baby", "bike", "tv", "music", "wheat"] as const;
-
-// Star (featured) flags per menu category, matched by index to
-// translations.menu.categories[i].items
-export const menuFeaturedFlags: boolean[][] = [
-  [true, false, false, false],
-  [true, false, false, false],
-  [true, false, false],
-  [true, false, false, false, false, false],
-  [true, false, false, false],
-];
-
-// Gallery images + layout span, matched by index to translations.gallery.items
+/** Same order as content.gallery.items in src/i18n/content.ts */
 export const gallery = [
   { src: galCoffee, span: "tall" },
   { src: galTerrace, span: "wide" },
@@ -71,4 +52,4 @@ export const gallery = [
   { src: galBaguette, span: "" },
   { src: galCroissant, span: "" },
   { src: galTapas, span: "wide" },
-] as const;
+];

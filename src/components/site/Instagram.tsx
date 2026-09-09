@@ -1,13 +1,12 @@
 import { motion } from "framer-motion";
 import { Instagram as IgIcon } from "lucide-react";
 import { business, gallery } from "./data";
-import { Reveal } from "./primitives";
+import { Magnetic, Reveal } from "./primitives";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 export function Instagram() {
   const { t } = useLanguage();
-  const items = t.gallery.items.map((meta, i) => ({ ...meta, ...gallery[i]! }));
-  const feed = items.slice(0, 6);
+  const feed = gallery.slice(0, 6).map((g, i) => ({ ...g, ...t.gallery.items[i]! }));
 
   return (
     <section className="on-dark grain bg-espresso-soft py-24 md:py-32">
@@ -15,31 +14,29 @@ export function Instagram() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <Reveal className="min-w-0">
             <p className="eyebrow">{t.instagram.eyebrow}</p>
-            <h2 className="mt-4 text-4xl leading-tight tracking-tight sm:text-5xl">
-              @cafeterialarutlla
-            </h2>
-            <p className="mt-4 max-w-md text-sm leading-relaxed text-cream/65">
-              {t.instagram.description}
-            </p>
+            <h2 className="mt-4 text-4xl leading-tight tracking-tight sm:text-5xl">@cafeterialarutlla</h2>
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-cream/65">{t.instagram.text}</p>
           </Reveal>
           <Reveal delay={0.1}>
-            <a
-              href={business.instagram}
-              target="_blank"
-              rel="noreferrer"
-              className="group inline-flex items-center gap-3 rounded-full border border-brass/70 px-7 py-4 text-[0.7rem] uppercase tracking-[0.22em] text-brass transition-all duration-300 hover:bg-brass hover:text-espresso"
-            >
-              <IgIcon className="h-4 w-4" aria-hidden="true" />
-              {t.instagram.cta}
-              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </a>
+            <Magnetic>
+              <a
+                href={business.instagram}
+                target="_blank"
+                rel="noreferrer"
+                className="group inline-flex items-center gap-2.5 rounded-full border border-brass/70 px-6 py-3 text-[0.64rem] uppercase tracking-[0.18em] text-brass transition-all duration-300 hover:bg-brass hover:text-espresso sm:gap-3 sm:px-7 sm:py-4 sm:text-[0.7rem] sm:tracking-[0.22em]"
+              >
+                <IgIcon className="h-4 w-4" aria-hidden="true" />
+                {t.instagram.cta}
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </a>
+            </Magnetic>
           </Reveal>
         </div>
 
         <div className="mt-14 grid grid-cols-3 gap-2 md:grid-cols-6 md:gap-3">
           {feed.map((g, i) => (
             <motion.a
-              key={g.tag + i}
+              key={i}
               href={business.instagram}
               target="_blank"
               rel="noreferrer"

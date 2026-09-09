@@ -9,10 +9,12 @@ import { Reviews } from "@/components/site/Reviews";
 import { Instagram } from "@/components/site/Instagram";
 import { Location } from "@/components/site/Location";
 import { Footer } from "@/components/site/Footer";
+import { ClosedNotice } from "@/components/site/ClosedNotice";
+import { LanguageProvider } from "@/i18n/LanguageContext";
 
-const title = "La Rutlla Cafè · Cafetería y bar en Anglès, Girona";
+const title = "La Rutlla Cafè · Cafeteria i bar a Anglès, Girona";
 const description =
-  "Cafetería y bar centenario en la Plaça de la Rutlla, Anglès. Cafés, desayunos, bocadillos, tapas y terraza soleada. Abierto cada día 07:00–23:00.";
+  "Cafeteria i bar centenari a la Plaça de la Rutlla, Anglès. Cafès, esmorzars, entrepans, tapes i terrassa assolellada. Obert cada dia excepte dimarts, 07:00–23:00.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,7 +32,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <>
+    <LanguageProvider>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -56,7 +58,7 @@ function Index() {
               ratingValue: "4.1",
               reviewCount: "755",
             },
-            openingHours: "Mo-Su 07:00-23:00",
+            openingHours: ["Mo 07:00-23:00", "We-Su 07:00-23:00"],
           }),
         }}
       />
@@ -72,6 +74,7 @@ function Index() {
         <Location />
       </main>
       <Footer />
-    </>
+      <ClosedNotice />
+    </LanguageProvider>
   );
 }

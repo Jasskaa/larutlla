@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Sun, Wifi, Baby, Bike, Tv, Music, Wheat } from "lucide-react";
-import { amenityIcons } from "./data";
-import { Reveal, SectionHeading } from "./primitives";
+import { SectionHeading, Stagger, StaggerItem } from "./primitives";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const icons = { sun: Sun, wifi: Wifi, baby: Baby, bike: Bike, tv: Tv, music: Music, wheat: Wheat };
@@ -12,26 +11,23 @@ export function Amenities() {
   return (
     <section className="on-dark grain relative bg-espresso py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5 lg:px-10">
-        <SectionHeading
-          eyebrow={t.amenities.eyebrow}
-          title={t.amenities.title}
-          intro={t.amenities.intro}
-        />
+        <SectionHeading eyebrow={t.amenities.eyebrow} title={t.amenities.title} intro={t.amenities.intro} />
 
-        <ul className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-cream/10 bg-cream/10 md:grid-cols-4">
-          {t.amenities.items.map((a, i) => {
-            const Icon = icons[amenityIcons[i] as keyof typeof icons];
+        <Stagger
+          as="ul"
+          gap={0.07}
+          className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-cream/10 bg-cream/10 md:grid-cols-4"
+        >
+          {t.amenities.items.map((a) => {
+            const Icon = icons[a.icon as keyof typeof icons];
             return (
-              <motion.li
+              <StaggerItem
+                as="li"
                 key={a.title}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.7, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
                 className="group relative bg-espresso p-6 transition-colors duration-500 hover:bg-espresso-soft md:p-8"
               >
                 <motion.span
-                  whileHover={{ rotate: -8, scale: 1.08 }}
+                  whileHover={{ rotate: -8, scale: 1.1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 14 }}
                   className="inline-grid h-12 w-12 place-items-center rounded-full border border-brass/40 text-brass transition-colors duration-500 group-hover:border-brass"
                 >
@@ -39,14 +35,15 @@ export function Amenities() {
                 </motion.span>
                 <h3 className="mt-5 font-display text-xl text-cream">{a.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-cream/60">{a.desc}</p>
-              </motion.li>
+                <span className="absolute bottom-0 left-0 h-px w-0 bg-brass transition-all duration-700 group-hover:w-full" />
+              </StaggerItem>
             );
           })}
-          <Reveal className="bg-espresso p-6 md:p-8">
-            <p className="font-display text-xl italic text-brass">{t.amenities.takeaway.title}</p>
-            <p className="mt-2 text-sm leading-relaxed text-cream/60">{t.amenities.takeaway.desc}</p>
-          </Reveal>
-        </ul>
+          <StaggerItem as="li" className="bg-espresso p-6 md:p-8">
+            <p className="font-display text-xl italic text-brass">{t.amenities.extraTitle}</p>
+            <p className="mt-2 text-sm leading-relaxed text-cream/60">{t.amenities.extraDesc}</p>
+          </StaggerItem>
+        </Stagger>
       </div>
     </section>
   );

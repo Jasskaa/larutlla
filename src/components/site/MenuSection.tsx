@@ -1,39 +1,31 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ChevronDown, Star, X } from "lucide-react";
-import { menuFeaturedFlags } from "./data";
-import { Reveal, SectionHeading } from "./primitives";
-import { cn } from "@/lib/utils";
+import { Magnetic, Reveal, SectionHeading } from "./primitives";
 import { useLanguage } from "@/i18n/LanguageContext";
-import type { Translations } from "@/i18n/translations";
+import type { Content } from "@/i18n/content";
+import { cn } from "@/lib/utils";
 
-type MenuCategory = Translations["menu"]["categories"][number];
+type Category = Content["menu"]["categories"][number];
+type Item = Category["items"][number];
 
-function MenuItems({
-  items,
-  flags,
-  featuredLabel,
-}: {
-  items: MenuCategory["items"];
-  flags: boolean[];
-  featuredLabel: string;
-}) {
+function MenuItems({ items, featured }: { items: readonly Item[]; featured: string }) {
   return (
     <ul className="grid gap-px overflow-hidden rounded-sm border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item, i) => (
         <motion.li
           key={item.name}
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 * i, duration: 0.5 }}
+          transition={{ delay: 0.05 * i, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           className="group relative bg-card p-5 transition-colors duration-500 hover:bg-secondary sm:p-7"
         >
           <div className="flex items-start justify-between gap-4">
             <h3 className="font-display text-xl leading-tight sm:text-2xl">{item.name}</h3>
-            {flags[i] && (
+            {"star" in item && item.star && (
               <span className="mt-1 inline-flex shrink-0 items-center gap-1 rounded-full border border-brass/60 px-2.5 py-1 text-[0.55rem] uppercase tracking-[0.18em] text-copper">
                 <Star className="h-2.5 w-2.5 fill-current" aria-hidden="true" />
-                {featuredLabel}
+                {featured}
               </span>
             )}
           </div>
@@ -64,7 +56,7 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
     <motion.div
       role="dialog"
       aria-modal="true"
-      aria-label={t.menu.sheetAriaLabel}
+      aria-label={t.menu.sheetAria}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -87,7 +79,7 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            aria-label={t.menu.closeSheet}
+            aria-label={t.common.close}
             className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border"
           >
             <X className="h-4 w-4" />
@@ -95,7 +87,7 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-10 pt-2">
-          {categories.map((cat, ci) => {
+          {categories.map((cat) => {
             const isOpen = open === cat.id;
             return (
               <div key={cat.id} className="border-b border-border">
@@ -124,11 +116,7 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
                     >
                       <p className="pb-4 font-display text-base italic text-copper">{cat.note}</p>
                       <div className="pb-5">
-                        <MenuItems
-                          items={cat.items}
-                          flags={menuFeaturedFlags[ci] ?? []}
-                          featuredLabel={t.menu.featured}
-                        />
+                        <MenuItems items={cat.items} featured={t.menu.featured} />
                       </div>
                     </motion.div>
                   )}
@@ -137,7 +125,7 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
             );
           })}
           <p className="mt-6 text-center text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-            {t.menu.footNote}
+            {t.menu.footnote}
           </p>
         </div>
       </motion.div>
@@ -148,10 +136,9 @@ function MobileMenuSheet({ onClose }: { onClose: () => void }) {
 export function MenuSection() {
   const { t } = useLanguage();
   const categories = t.menu.categories;
-  const [active, setActive] = useState<string>(categories[0]!.id);
+  const [active, setActive] = useState(categories[0]!.id);
   const [sheet, setSheet] = useState(false);
-  const currentIndex = categories.findIndex((m) => m.id === active);
-  const current = categories[currentIndex] ?? categories[0]!;
+  const current = categories.find((m) => m.id === active) ?? categories[0]!;
 
   return (
     <section id="carta" className="relative bg-background py-20 md:py-36">
@@ -164,57 +151,62 @@ export function MenuSection() {
             type="button"
             onClick={() => setSheet(true)}
             whileTap={{ scale: 0.97 }}
-            className="group flex w-full items-center justify-between gap-4 rounded-full bg-espresso px-7 py-5 text-cream"
+            className="group flex w-full items-center justify-between gap-4 rounded-full bg-espresso py-2 pl-6 pr-2 text-cream sm:pl-7"
           >
-            <span className="text-[0.72rem] uppercase tracking-[0.26em]">{t.menu.ctaMobile}</span>
-            <span className="text-brass transition-transform duration-300 group-active:translate-x-1">
+            <span className="text-[0.66rem] uppercase tracking-[0.2em] sm:text-[0.72rem] sm:tracking-[0.26em]">
+              {t.menu.mobileCta}
+            </span>
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brass text-espresso sm:h-11 sm:w-11">
               →
             </span>
           </motion.button>
           <p className="mt-4 text-center text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-            {t.menu.categoriesNote(categories.length)}
+            {t.menu.mobileHint(categories.length)}
           </p>
         </div>
 
         <AnimatePresence>{sheet && <MobileMenuSheet onClose={() => setSheet(false)} />}</AnimatePresence>
 
-        {/* Desktop: tabs */}
+        {/* Desktop: chip filters + panel */}
         <div className="hidden lg:block">
           <Reveal delay={0.1}>
             <div
               role="tablist"
-              aria-label={t.menu.tabsAriaLabel}
-              className="mt-14 flex flex-wrap justify-center gap-2"
+              aria-label={t.menu.tablist}
+              className="mt-14 flex flex-wrap justify-center gap-3"
             >
               {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  role="tab"
-                  aria-selected={active === cat.id}
-                  aria-controls={`panel-${cat.id}`}
-                  id={`tab-${cat.id}`}
-                  onClick={() => setActive(cat.id)}
-                  className={cn(
-                    "relative rounded-full px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] transition-colors duration-300",
-                    active === cat.id ? "text-cream" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {active === cat.id && (
-                    <motion.span
-                      layoutId="menu-pill"
-                      className="absolute inset-0 rounded-full bg-espresso"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                    />
-                  )}
-                  <span className="relative">{cat.label}</span>
-                </button>
+                <Magnetic key={cat.id} strength={6}>
+                  <button
+                    role="tab"
+                    aria-selected={active === cat.id}
+                    aria-controls={`panel-${cat.id}`}
+                    id={`tab-${cat.id}`}
+                    onClick={() => setActive(cat.id)}
+                    className={cn(
+                      "relative rounded-full border px-6 py-3 text-[0.68rem] uppercase tracking-[0.2em] transition-colors duration-300",
+                      active === cat.id
+                        ? "border-transparent text-cream"
+                        : "border-border text-muted-foreground hover:border-brass/60 hover:text-foreground",
+                    )}
+                  >
+                    {active === cat.id && (
+                      <motion.span
+                        layoutId="menu-pill"
+                        className="absolute inset-0 rounded-full bg-espresso"
+                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      />
+                    )}
+                    <span className="relative">{cat.label}</span>
+                  </button>
+                </Magnetic>
               ))}
             </div>
           </Reveal>
 
           <AnimatePresence mode="wait">
             <motion.div
-              key={current.id}
+              key={current.id + t.localeLabel}
               id={`panel-${current.id}`}
               role="tabpanel"
               aria-labelledby={`tab-${current.id}`}
@@ -226,18 +218,14 @@ export function MenuSection() {
             >
               <p className="text-center font-display text-xl italic text-copper">{current.note}</p>
               <div className="mt-10">
-                <MenuItems
-                  items={current.items}
-                  flags={menuFeaturedFlags[currentIndex] ?? []}
-                  featuredLabel={t.menu.featured}
-                />
+                <MenuItems items={current.items} featured={t.menu.featured} />
               </div>
             </motion.div>
           </AnimatePresence>
 
           <Reveal delay={0.15}>
             <p className="mt-10 text-center text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              {t.menu.footNote}
+              {t.menu.footnote}
             </p>
           </Reveal>
         </div>

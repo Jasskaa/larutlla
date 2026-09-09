@@ -1,131 +1,99 @@
-import { AnimatePresence, motion, animate, useInView } from "framer-motion";
+import { animate, motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Quote, Star } from "lucide-react";
+import { Quote, Star } from "lucide-react";
 import { business } from "./data";
-import { Reveal, SectionHeading } from "./primitives";
+import { SectionHeading, Stagger, StaggerItem } from "./primitives";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 function Counter({ value, decimals = 0 }: { value: number; decimals?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
+  const inView = useInView(ref, { once: true, margin: "-60px" });
   const [display, setDisplay] = useState("0");
+
   useEffect(() => {
     if (!inView) return;
-    const c = animate(0, value, {
+    const controls = animate(0, value, {
       duration: 2,
       ease: [0.22, 1, 0.36, 1],
       onUpdate: (v) => setDisplay(v.toFixed(decimals).replace(".", ",")),
     });
-    return () => c.stop();
+    return () => controls.stop();
   }, [inView, value, decimals]);
+
   return <span ref={ref}>{display}</span>;
+}
+
+function Stars({ n = 5 }: { n?: number }) {
+  return (
+    <span className="flex gap-0.5" aria-hidden="true">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} className="h-3 w-3 fill-brass text-brass" style={{ opacity: i < n ? 1 : 0.3 }} />
+      ))}
+    </span>
+  );
 }
 
 export function Reviews() {
   const { t } = useLanguage();
-  const testimonials = t.reviews.testimonials;
-  const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => setIndex((i) => (i + 1) % testimonials.length), 6000);
-    return () => clearInterval(id);
-  }, [paused, testimonials.length]);
-
-  const go = (dir: number) =>
-    setIndex((i) => (i + dir + testimonials.length) % testimonials.length);
 
   return (
-    <section id="resenas" className="bg-background py-24 md:py-36">
+    <section id="resenas" className="relative overflow-hidden bg-background py-20 md:py-36">
       <div className="mx-auto max-w-7xl px-5 lg:px-10">
-        <SectionHeading eyebrow={t.reviews.eyebrow} title={t.reviews.title} />
+        <SectionHeading eyebrow={t.reviews.eyebrow} title={t.reviews.title} intro={t.reviews.intro} />
 
-        <Reveal delay={0.1}>
-          <div className="mt-14 flex flex-col items-center gap-3">
-            <p className="font-display text-[clamp(4.5rem,16vw,10rem)] leading-none tracking-tight">
+        <div className="mt-12 flex flex-wrap items-end justify-center gap-x-12 gap-y-6 text-center">
+          <div>
+            <p className="font-display text-6xl leading-none md:text-7xl">
               <Counter value={business.rating} decimals={1} />
             </p>
-            <span className="flex gap-1.5" aria-hidden="true">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <motion.span
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  whileInView={{ opacity: i < 4 ? 1 : 0.35, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.9 + i * 0.1, type: "spring", stiffness: 300 }}
-                >
-                  <Star className="h-5 w-5 fill-brass text-brass" />
-                </motion.span>
-              ))}
-            </span>
-            <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-              <Counter value={business.reviews} /> {t.reviews.reviewsLabel}
+            <div className="mt-3 flex justify-center">
+              <Stars n={4} />
+            </div>
+            <p className="mt-2 text-[0.62rem] uppercase tracking-[0.22em] text-muted-foreground">
+              {t.reviews.ratingLabel}
             </p>
           </div>
-        </Reveal>
-
-        <div
-          className="relative mx-auto mt-16 max-w-3xl"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-          aria-roledescription="carrusel"
-          aria-label={t.reviews.title}
-        >
-          <Quote className="mx-auto h-8 w-8 text-brass" aria-hidden="true" />
-          <div className="relative mt-6 min-h-[230px] sm:min-h-[200px]">
-            <AnimatePresence mode="wait">
-              <motion.blockquote
-                key={index}
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -18 }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="text-center"
-              >
-                <p className="font-display text-2xl leading-snug italic sm:text-3xl md:text-4xl">
-                  “{testimonials[index]!.quote}”
-                </p>
-                <footer className="mt-7 text-[0.65rem] uppercase tracking-[0.26em] text-muted-foreground">
-                  {testimonials[index]!.author} · {t.reviews.meta}
-                </footer>
-              </motion.blockquote>
-            </AnimatePresence>
-          </div>
-
-          <div className="mt-8 flex items-center justify-center gap-5">
-            <button
-              type="button"
-              onClick={() => go(-1)}
-              aria-label={t.reviews.prev}
-              className="grid h-11 w-11 place-items-center rounded-full border border-border transition-colors duration-300 hover:border-brass hover:text-copper"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-            <div className="flex gap-2">
-              {testimonials.map((tItem, i) => (
-                <button
-                  key={tItem.author}
-                  type="button"
-                  onClick={() => setIndex(i)}
-                  aria-label={t.reviews.goTo(i + 1)}
-                  aria-current={i === index}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${
-                    i === index ? "w-8 bg-copper" : "w-1.5 bg-border hover:bg-brass"
-                  }`}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => go(1)}
-              aria-label={t.reviews.next}
-              className="grid h-11 w-11 place-items-center rounded-full border border-border transition-colors duration-300 hover:border-brass hover:text-copper"
-            >
-              <ArrowRight className="h-4 w-4" />
-            </button>
+          <div>
+            <p className="font-display text-6xl leading-none md:text-7xl">
+              <Counter value={business.reviews} />
+            </p>
+            <p className="mt-4 text-[0.62rem] uppercase tracking-[0.22em] text-muted-foreground">
+              {t.reviews.reviewsLabel}
+            </p>
           </div>
         </div>
+
+        {/* Mobile: swipeable cards / Desktop: grid */}
+        <Stagger
+          as="ul"
+          gap={0.09}
+          className="-mx-5 mt-14 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {t.reviews.items.map((r) => (
+            <StaggerItem
+              as="li"
+              key={r.author}
+              className="group relative w-[78vw] shrink-0 snap-center rounded-sm border border-border bg-card p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-brass/50 md:w-auto"
+            >
+              <Quote className="h-5 w-5 text-brass/60" aria-hidden="true" />
+              <p className="mt-4 font-display text-lg leading-snug">{r.quote}</p>
+              <div className="mt-6 flex items-center gap-3 border-t border-border pt-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-espresso font-display text-base text-cream">
+                  {r.author.charAt(0)}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm">{r.author}</span>
+                  <span className="mt-1 flex items-center gap-2">
+                    <Stars />
+                    <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">
+                      {t.reviews.source}
+                    </span>
+                  </span>
+                </span>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
       </div>
     </section>
   );
